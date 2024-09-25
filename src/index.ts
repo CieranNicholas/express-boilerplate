@@ -1,16 +1,16 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
-import session from "express-session";
-import passport from "passport";
-import pgSession from "connect-pg-simple";
-import { Pool } from "pg";
+import express, { Express, Request, Response } from 'express';
+import dotenv from 'dotenv';
+import session from 'express-session';
+import passport from 'passport';
+import pgSession from 'connect-pg-simple';
+import { Pool } from 'pg';
 
-import loggerMiddleware from "./middleware/logger";
-import corsMiddleware from "./middleware/cors";
+import loggerMiddleware from './middleware/logger';
+import corsMiddleware from './middleware/cors';
 
-import userRouter from "./routes/users";
-import statusRouter from "./routes/status";
-import authRouter from "./routes/auth";
+import userRouter from './routes/users';
+import statusRouter from './routes/status';
+import authRouter from './routes/auth';
 
 dotenv.config();
 
@@ -32,18 +32,18 @@ app.use(
     },
     store: new (pgSession(session))({
       pool: pool,
-      tableName: "Session",
+      tableName: 'Session',
     }),
-  })
+  }),
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(corsMiddleware);
 
-app.use("/api", statusRouter);
-app.use("/api", authRouter);
-app.use("/api", userRouter);
+app.use('/api', statusRouter);
+app.use('/api', authRouter);
+app.use('/api', userRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

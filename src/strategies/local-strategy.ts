@@ -6,45 +6,43 @@ import { compare } from '../lib/bcrypt';
 
 // Runs on initial login
 passport.serializeUser((user, done) => {
-	console.log('serializeUser', user);
-	done(null, user.id);
+  done(null, user.id);
 });
 
 // Runs on subsequent requests
 passport.deserializeUser(async (id: User['id'], done) => {
-	console.log('deserializeUser', id);
-	try {
-		const user = await prisma.user.findUnique({
-			where: {
-				id,
-			},
-		});
-		if (!user) throw new Error('user not found.');
-		done(null, user);
-	} catch (error) {
-		done(error);
-	}
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!user) throw new Error('user not found.');
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
 });
 
 export default passport.use(
-	new Strategy(
-		{
-			usernameField: 'email',
-		},
-		async (email, password, done) => {
-			console.log('email', email, 'password', password);
-			try {
-				const user = await prisma.user.findUnique({
-					where: {
-						email,
-					},
-				});
-				if (!user) throw new Error('user not found.');
-				if (!compare(password, user.password)) throw new Error('Bad Credentials');
-				done(null, user);
-			} catch (error) {
-				done(error, false);
-			}
-		}
-	)
+  new Strategy(
+    {
+      usernameField: 'email',
+    },
+    async (email, password, done) => {
+      try {
+        const user = await prisma.user.findUnique({
+          where: {
+            email,
+          },
+        });
+        if (!user) throw new Error('user not found.');
+        if (!compare(password, user.password))
+          throw new Error('Invalid Credentials');
+        done(null, user);
+      } catch (error) {
+        done(error, false);
+      }
+    },
+  ),
 );

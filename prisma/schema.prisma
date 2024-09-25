@@ -12,14 +12,10 @@ model User {
   email    String    @unique
   password String
   name     String
-
-  Session  Session?
 }
 
 model Session {
   sid     String    @id @db.VarChar
-  userId  String    @unique 
-  user    User      @relation(fields: [userId], references: [id])
   sess    Json      @db.Json
   expire  DateTime  @db.Timestamp(6)
   @@index([expire], name: "IDX_session_expire")

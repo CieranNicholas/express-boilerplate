@@ -1,14 +1,12 @@
-import { Router, Request, Response } from "express";
-import passport from "passport";
+import { Router, Request, Response } from 'express';
+import passport from 'passport';
 
-import "../../strategies/local-strategy";
-import { createUser } from "../users/service";
-import { compare, hash } from "bcrypt";
-import prisma from "../../lib/db";
+import '../../strategies/local-strategy';
+import { createUser } from '../users/service';
 
 export const authRouter = Router();
 
-authRouter.post("/auth/register", async (req: Request, res: Response) => {
+authRouter.post('/auth/register', async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
     const user = await createUser({ name, email, password });
@@ -19,36 +17,15 @@ authRouter.post("/auth/register", async (req: Request, res: Response) => {
 });
 
 authRouter.post(
-  "/auth/login",
-  passport.authenticate("local"),
-  async (req: Request, res: Response) => {
-    try {
-      const { email, password } = req.body;
-      const user = await prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
-      const match = await compare(password, user!.password);
-      if (match) {
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(401);
-      }
-    } catch (error: any) {
-      res.status(500).send({ message: error.message });
-    }
-  }
+  '/auth/login',
+  passport.authenticate('local'),
+  (req: Request, res: Response) => {
+    res.sendStatus(200);
+  },
 );
 
-authRouter.post("/auth/logout", async (req: Request, res: Response) => {
+authRouter.post('/auth/logout', async (req: Request, res: Response) => {
   if (!req.user) return res.sendStatus(401);
-
-  await prisma.session.deleteMany({
-    where: {
-      userId: req.user.id,
-    },
-  });
 
   req.logout((error) => {
     if (error) return res.sendStatus(400);
@@ -56,10 +33,10 @@ authRouter.post("/auth/logout", async (req: Request, res: Response) => {
   });
 });
 
-authRouter.get("/auth/status", async (req: Request, res: Response) => {
+authRouter.get('/auth/status', async (req: Request, res: Response) => {
   return req.user
-    ? res.status(200).send({ message: "Authenticated", user: req.user })
-    : res.status(401).send({ message: "Not authenticated" });
+    ? res.status(200).send({ message: 'Authenticated', user: req.user })
+    : res.status(401).send({ message: 'Not authenticated' });
 });
 
 export default authRouter;
