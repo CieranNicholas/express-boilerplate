@@ -11,12 +11,13 @@ model User {
   id       String    @id @default(uuid())
   email    String    @unique
   password String
+  name     String
 
   Session  Session?
 }
 
 model Session {
-  id      String    @id @default(uuid())
+  sid     String    @id @db.VarChar
   userId  String    @unique 
   user    User      @relation(fields: [userId], references: [id])
   sess    Json      @db.Json

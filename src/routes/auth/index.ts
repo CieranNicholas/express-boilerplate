@@ -9,8 +9,8 @@ import prisma from "../../lib/db";
 export const authRouter = Router();
 
 authRouter.post("/auth/register", async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
   try {
+    const { name, email, password } = req.body;
     const user = await createUser({ name, email, password });
     res.status(201).send(user);
   } catch (error: any) {
@@ -41,8 +41,14 @@ authRouter.post(
   }
 );
 
-authRouter.post("/auth/logout", (req: Request, res: Response) => {
+authRouter.post("/auth/logout", async (req: Request, res: Response) => {
   if (!req.user) return res.sendStatus(401);
+
+  await prisma.session.deleteMany({
+    where: {
+      userId: req.user.id,
+    },
+  });
 
   req.logout((error) => {
     if (error) return res.sendStatus(400);

@@ -9,3 +9,11 @@
 
 - `docker exec -it backend npx prisma migrate dev --name init` -
 - `docker exec -it db psql -U postgres`
+
+TODO:
+
+- logger
+- unit tests
+- payment processing
+  - purchases table?
+- relative import paths
