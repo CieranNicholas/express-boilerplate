@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 
 import '../../strategies/local-strategy';
@@ -24,14 +24,26 @@ authRouter.post(
   },
 );
 
-authRouter.post('/auth/logout', async (req: Request, res: Response) => {
-  if (!req.user) return res.sendStatus(401);
+authRouter.post(
+  '/auth/logout',
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) return res.sendStatus(401);
 
-  req.logout((error) => {
-    if (error) return res.sendStatus(400);
-    res.sendStatus(200);
-  });
-});
+    req.logout((error) => {
+      if (error) return res.sendStatus(400);
+
+      // Destroy session in the database
+      req.session.destroy((err) => {
+        if (err) {
+          return next(err);
+        }
+
+        res.clearCookie('connect.sid');
+        res.sendStatus(200);
+      });
+    });
+  },
+);
 
 authRouter.get('/auth/status', async (req: Request, res: Response) => {
   return req.user
